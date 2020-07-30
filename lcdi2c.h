@@ -37,10 +37,24 @@ typedef enum lcd_topology {LCD_TOPO_40x2 = 0,
                    LCD_TOPO_16x2 = 4,
                    LCD_TOPO_16x1T1 = 5,
                    LCD_TOPO_16x1T2 = 6,
-		   LCD_TOPO_8x2 = 7,
+                   LCD_TOPO_8x2 = 7,
                    } lcd_topology;
                    
 
+#undef PDEBUG             /* undef it, just in case */
+#ifdef LCDI2C_DEBUG
+#  ifdef __KERNEL__
+     /* This one if debugging is on, and kernel space */
+#    define PDEBUG(fmt, args...) printk( KERN_DEBUG "lcdi2c: " fmt, ## args)
+#  else     /* This one for user space */
+#    define PDEBUG(fmt, args...) fprintf(stderr, fmt, ## args)
+#  endif
+#else
+#  define PDEBUG(fmt, args...) /* not debugging: nothing */
+#endif
+
+#undef PDEBUGG
+#define PDEBUGG(fmt, args...) /* nothing: it's a placeholder */
 
 #define DEFAULT_CHIP_ADDRESS 0x27
 #define LCD_BUFFER_SIZE 0x68 //20 columns * 4 rows + 4 chars extra

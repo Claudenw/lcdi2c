@@ -49,7 +49,7 @@ MODULE_PARM_DESC(address, " LCD I2C Address, default 0x27");
 MODULE_PARM_DESC(pinout, " I2C module pinout configuration, eight "
                          "numbers\n\t\trepresenting following LCD module"
                          "pins in order: RS,RW,E,D4,D5,D6,D7,\n"
-			 "\t\tdefault 0,1,2,3,4,5,6,7");
+                         "\t\tdefault 0,1,2,3,4,5,6,7");
 MODULE_PARM_DESC(cursor, " Show cursor at start 1 - Yes, 0 - No, default 1");
 MODULE_PARM_DESC(blink, " Blink cursor 1 - Yes, 0 - No, defualt 1");
 MODULE_PARM_DESC(major, " Device major number, default 0");
@@ -61,11 +61,12 @@ MODULE_PARM_DESC(topo, " Display organization, following values are currently su
                         "\t\t4 - 16x2\n"
                         "\t\t5 - 16x1 Type 1\n"
                         "\t\t6 - 16x1 Type 2\n"
-			"\t\t7 - 8x2\n"
+                        "\t\t7 - 8x2\n"
                         "\t\tDefault set to 16x2");
 
 static int lcdi2c_open(struct inode *inode, struct file *file)
 {
+    PDEBUG( "lcdi2c_open");
     CRIT_BEG(data, EBUSY);
 
     data->deviceopencnt++;
@@ -78,6 +79,7 @@ static int lcdi2c_open(struct inode *inode, struct file *file)
 
 static int lcdi2c_release(struct inode *inode, struct file *file)
 {
+    PDEBUG( "lcdi2c_release");
     CRIT_BEG(data, EBUSY);
 
     data->deviceopencnt--;
@@ -90,6 +92,7 @@ static int lcdi2c_release(struct inode *inode, struct file *file)
 static ssize_t lcdi2c_fopread(struct file *file, char __user *buffer,
 			   size_t length, loff_t *offset)
 {
+    PDEBUG( "lcdi2c_fopread");
     u8 i = 0;
 
     CRIT_BEG(data, EBUSY);
@@ -115,6 +118,8 @@ static ssize_t lcdi2c_fopread(struct file *file, char __user *buffer,
 static ssize_t lcdi2c_fopwrite(struct file *file, const char __user *buffer,
 			    size_t length, loff_t *offset)
 {
+    PDEBUG( "lcdi2c_fopwrite");
+
     u8 i, str[81];
 
     CRIT_BEG(data, EBUSY);
@@ -130,6 +135,8 @@ static ssize_t lcdi2c_fopwrite(struct file *file, const char __user *buffer,
 
 loff_t lcdi2c_lseek(struct file *file, loff_t offset, int orig)
 {
+    PDEBUG( "lcdi2c_lseek");
+
   u8 memaddr, oldoffset;
 
   CRIT_BEG(data, EBUSY);
@@ -148,7 +155,7 @@ static long lcdi2c_ioctl(struct file *file,
 			unsigned int ioctl_num,
 			unsigned long arg)
 {
-
+    PDEBUG( "lcdi2c_ioctl");
   char *buffer = (char*)arg, ccb[10];
   u8 memaddr, i, ch;
   long status = SUCCESS;
@@ -242,7 +249,7 @@ static long lcdi2c_ioctl(struct file *file,
 
 static int lcdi2c_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
-
+    PDEBUG( "lcdi2c_probe");
     data = (LcdData_t *) devm_kzalloc(&client->dev, sizeof(LcdData_t),
 				      GFP_KERNEL);
     if (!data)
@@ -272,7 +279,8 @@ static int lcdi2c_probe(struct i2c_client *client, const struct i2c_device_id *i
 
 static int lcdi2c_remove(struct i2c_client *client)
 {
-	LcdData_t *data = i2c_get_clientdata(client);
+    PDEBUG( "lcdi2c_remove");
+    LcdData_t *data = i2c_get_clientdata(client);
 
         dev_info(&client->dev, "going to be removed");
         if (data)
@@ -315,6 +323,7 @@ static struct file_operations lcdi2c_fops = {
 static ssize_t lcdi2c_reset(struct device* dev, struct device_attribute* attr,
 			    const char* buf, size_t count)
 {
+    PDEBUG( "lcdi2c_reset");
     CRIT_BEG(data, ERESTARTSYS);
 
     if (count > 0 && buf[0] == '1')
@@ -328,6 +337,7 @@ static ssize_t lcdi2c_backlight(struct device* dev,
 				struct device_attribute* attr,
 				const char* buf, size_t count)
 {
+    PDEBUG( "lcdi2c_backlight");
     u8 res;
     int er;
 
@@ -353,6 +363,7 @@ static ssize_t lcdi2c_backlight(struct device* dev,
 static ssize_t lcdi2c_backlight_show(struct device *dev,
 				     struct device_attribute *attr, char *buf)
 {
+    PDEBUG( "lcdi2c_backlight_show");
     int count = 0;
 
     CRIT_BEG(data, ERESTARTSYS);
@@ -368,6 +379,7 @@ static ssize_t lcdi2c_cursorpos(struct device* dev,
 				struct device_attribute* attr,
 				const char* buf, size_t count)
 {
+    PDEBUG( "lcdi2c_cursorpos");
     CRIT_BEG(data, ERESTARTSYS);
 
     if (count >= 2)
@@ -384,6 +396,7 @@ static ssize_t lcdi2c_cursorpos_show(struct device *dev,
 				     struct device_attribute *attr,
 				     char *buf)
 {
+    PDEBUG( "lcdi2c_cursorpos_show");
     ssize_t count = 0;
 
     CRIT_BEG(data, ERESTARTSYS);
@@ -403,6 +416,7 @@ static ssize_t lcdi2c_data(struct device* dev,
 			   struct device_attribute* attr,
 			   const char* buf, size_t count)
 {
+    PDEBUG( "lcdi2c_data");
     u8 i, addr, memaddr;
 
     CRIT_BEG(data, ERESTARTSYS);
@@ -425,6 +439,7 @@ static ssize_t lcdi2c_data(struct device* dev,
 static ssize_t lcdi2c_data_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
+    PDEBUG( "lcdi2c_data_show");
     u8 i=0;
 
     CRIT_BEG(data, ERESTARTSYS);
@@ -444,6 +459,7 @@ static ssize_t lcdi2c_data_show(struct device *dev,
 static ssize_t lcdi2c_meta_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
+    PDEBUG( "lcdi2c_meta_show");
 
 #define META_BUFFER_LEN 54
 
@@ -497,6 +513,7 @@ static ssize_t lcdi2c_cursor(struct device* dev,
 			     struct device_attribute* attr,
 			     const char* buf, size_t count)
 {
+    PDEBUG( "lcdi2c_cursor");
     CRIT_BEG(data, ERESTARTSYS);
 
     if (count > 0)
@@ -512,6 +529,7 @@ static ssize_t lcdi2c_cursor(struct device* dev,
 static ssize_t lcdi2c_cursor_show(struct device *dev,
 				  struct device_attribute *attr, char *buf)
 {
+    PDEBUG( "lcdi2c_cursor_show");
     int count = 0;
 
     CRIT_BEG(data, ERESTARTSYS);
@@ -527,6 +545,7 @@ static ssize_t lcdi2c_blink(struct device* dev,
 			    struct device_attribute* attr,
 			    const char* buf, size_t count)
 {
+    PDEBUG( "lcdi2c_blink");
     CRIT_BEG(data, ERESTARTSYS);
 
     if (count > 0)
@@ -542,6 +561,7 @@ static ssize_t lcdi2c_blink(struct device* dev,
 static ssize_t lcdi2c_blink_show(struct device *dev,
 				 struct device_attribute *attr, char *buf)
 {
+    PDEBUG( "lcdi2c_blink_show");
     int count = 0;
 
     CRIT_BEG(data, ERESTARTSYS);
@@ -556,6 +576,7 @@ static ssize_t lcdi2c_blink_show(struct device *dev,
 static ssize_t lcdi2c_home(struct device* dev, struct device_attribute* attr,
 			   const char* buf, size_t count)
 {
+    PDEBUG( "lcdi2c_home");
     CRIT_BEG(data, ERESTARTSYS);
 
     if (count > 0 && buf[0] == '1')
@@ -568,6 +589,7 @@ static ssize_t lcdi2c_home(struct device* dev, struct device_attribute* attr,
 static ssize_t lcdi2c_clear(struct device* dev, struct device_attribute* attr,
 			    const char* buf, size_t count)
 {
+    PDEBUG( "lcdi2c_clear");
     CRIT_BEG(data, ERESTARTSYS);
 
     if (count > 0 && buf[0] == '1')
@@ -580,6 +602,7 @@ static ssize_t lcdi2c_clear(struct device* dev, struct device_attribute* attr,
 static ssize_t lcdi2c_scrollhz(struct device* dev, struct device_attribute* attr,
 			       const char* buf, size_t count)
 {
+    PDEBUG( "lcdi2c_scrollhz");
     CRIT_BEG(data, ERESTARTSYS);
 
     if (count > 0)
@@ -593,6 +616,7 @@ static ssize_t lcdi2c_customchar(struct device* dev,
 				 struct device_attribute* attr,
 				 const char* buf, size_t count)
 {
+    PDEBUG( "lcdi2c_customchar");
     u8 i;
 
     CRIT_BEG(data, ERESTARTSYS);
@@ -624,6 +648,7 @@ static ssize_t lcdi2c_customchar(struct device* dev,
 static ssize_t lcdi2c_customchar_show(struct device *dev,
 				      struct device_attribute *attr, char *buf)
 {
+    PDEBUG( "lcdi2c_customchar_show");
     int count = 0, c, i;
 
     CRIT_BEG(data, ERESTARTSYS);
@@ -647,6 +672,7 @@ static ssize_t lcdi2c_char(struct device* dev,
 				 struct device_attribute* attr,
 				 const char* buf, size_t count)
 {
+    PDEBUG( "lcdi2c_char");
     u8 memaddr;
 
     CRIT_BEG(data, ERESTARTSYS);
@@ -668,6 +694,7 @@ static ssize_t lcdi2c_char(struct device* dev,
 static ssize_t lcdi2c_char_show(struct device *dev,
 				struct device_attribute *attr, char *buf)
 {
+    PDEBUG( "lcdi2c_char_show");
     u8 memaddr;
 
     CRIT_BEG(data, ERESTARTSYS);
@@ -726,6 +753,7 @@ static const struct attribute_group i2clcd_device_attr_group = {
 
 static int __init i2clcd857_init(void)
 {
+    PDEBUG( "__init i2clcd857_init");
     int ret;
     struct i2c_board_info board_info = {
                     .type = "lcdi2c",
@@ -803,6 +831,7 @@ static int __init i2clcd857_init(void)
 
 static void __exit i2clcd857_exit(void)
 {
+    PDEBUG( "__exit i2clcd857_exit");
 
     unregister_chrdev(major, DEVICE_NAME);
 
@@ -849,7 +878,7 @@ static const char *toponames[] = {
                                     "16x2",
                                     "16x1 type 1",
                                     "16x1 type 2",
-				    "8x2",
+                                    "8x2",
                                     };
 
 /* Pin mapping array */
@@ -858,6 +887,7 @@ uint pinout[8] = {0,1,2,3,4,5,6,7}; //I2C module pinout configuration in order:
 
 void _udelay_(u32 usecs)
 {
+    PDEBUG( "_udelay_");
     udelay(usecs);
 }
 
@@ -873,6 +903,7 @@ void _udelay_(u32 usecs)
  */
 static void _buswrite(LcdData_t *lcd, u8 data)
 {
+    PDEBUG( "_buswrite");
     data |= lcd->backlight ? (1 << PIN_BACKLIGHTON) : 0;
     LOWLEVEL_WRITE(lcd->handle, data);
 }
@@ -887,6 +918,7 @@ static void _buswrite(LcdData_t *lcd, u8 data)
  */
 static void _strobe(LcdData_t *lcd, u8 data)
 {
+    PDEBUG( "_strobe");
     _buswrite(lcd, data | (1 << PIN_EN));
     USLEEP(1);
     _buswrite(lcd, data & (~(1 << PIN_EN)));
@@ -903,6 +935,7 @@ static void _strobe(LcdData_t *lcd, u8 data)
  */
 static void _write4bits(LcdData_t *lcd, u8 value)
 {
+    PDEBUG( "_write4bits");
     _buswrite(lcd, value);
     _strobe(lcd, value);
 }
@@ -919,6 +952,7 @@ static void _write4bits(LcdData_t *lcd, u8 value)
  */
 static void lcdsend(LcdData_t *lcd, u8 value, u8 mode)
 {
+    PDEBUG( "lcdsend");
     u8 highnib = value & 0xF0;
     u8 lownib = value << 4;
 
@@ -935,6 +969,7 @@ static void lcdsend(LcdData_t *lcd, u8 value, u8 mode)
  */
 void lcdflushbuffer(LcdData_t *lcd)
 {
+    PDEBUG( "lcdflushbuffer");
     u8 col = lcd->column, row = lcd->row, i;
 
     for(i = 0; i < (lcd->organization.columns * lcd->organization.rows); i++)
@@ -955,6 +990,7 @@ void lcdflushbuffer(LcdData_t *lcd)
  */
 void lcdcommand(LcdData_t *lcd, u8 data)
 {
+    PDEBUG( "lcdcommand");
     lcdsend(lcd, data, 0);
 }
 
@@ -968,6 +1004,7 @@ void lcdcommand(LcdData_t *lcd, u8 data)
  */
 void lcdwrite(LcdData_t *lcd, u8 data)
 {
+    PDEBUG( "lcdwrite");
     u8 memaddr;
 
     memaddr = (lcd->column + (lcd->row * lcd->organization.columns)) % LCD_BUFFER_SIZE;
@@ -990,6 +1027,7 @@ void lcdwrite(LcdData_t *lcd, u8 data)
  */
 void lcdsetcursor(LcdData_t *lcd, u8 column, u8 row)
 {
+    PDEBUG( "lcdsetcursor");
      lcd->column = (column >= lcd->organization.columns ? 0 : column);
      lcd->row = (row >= lcd->organization.rows ? 0 : row);
     lcdcommand(lcd, LCD_DDRAM_SET | PTOMEMADDR(lcd, lcd->column, lcd->row));
@@ -1006,6 +1044,7 @@ void lcdsetcursor(LcdData_t *lcd, u8 column, u8 row)
  */
 void lcdsetbacklight(LcdData_t *lcd, u8 backlight)
 {
+    PDEBUG( "lcdsetbacklight");
     lcd->backlight = backlight;
     _buswrite(lcd, lcd->backlight ? (1 << PIN_BACKLIGHTON) : 0);
 }
@@ -1020,6 +1059,7 @@ void lcdsetbacklight(LcdData_t *lcd, u8 backlight)
  */
 void lcdcursor(LcdData_t *lcd, u8 cursor)
 {
+    PDEBUG( "lcdcursor");
     if (cursor)
         lcd->displaycontrol |= LCD_CURSOR;
     else
@@ -1038,6 +1078,7 @@ void lcdcursor(LcdData_t *lcd, u8 cursor)
  */
 void lcdblink(LcdData_t *lcd, u8 blink)
 {
+    PDEBUG( "lcdblink");
     if (blink)
         lcd->displaycontrol |= LCD_BLINK;
     else
@@ -1055,6 +1096,7 @@ void lcdblink(LcdData_t *lcd, u8 blink)
  */
 void lcdhome(LcdData_t *lcd)
 {
+    PDEBUG( "lcdhome");
     lcd->column = 0;
     lcd->row = 0;
     lcdcommand(lcd, LCD_HOME);
@@ -1071,6 +1113,7 @@ void lcdhome(LcdData_t *lcd)
  */
 void lcdclear(LcdData_t *lcd)
 {
+    PDEBUG( "lcdclear");
     memset(lcd->buffer, 0x20, LCD_BUFFER_SIZE); //Fill buffer with spaces
     lcdcommand(lcd, LCD_CLEAR);
     MSLEEP(2);
@@ -1088,6 +1131,7 @@ void lcdclear(LcdData_t *lcd)
  */
 void lcdscrollhoriz(LcdData_t *lcd, u8 direction)
 {
+    PDEBUG( "lcdscrollhoriz");
     lcdcommand(lcd, LCD_DS_SHIFTDISPLAY |
 	      (direction ? LCD_DS_SHIFTRIGHT : LCD_DS_SHIFTLEFT));
 }
@@ -1100,6 +1144,7 @@ void lcdscrollhoriz(LcdData_t *lcd, u8 direction)
  */
 void lcdscrollvert(LcdData_t *lcd, u8 direction)
 {
+    PDEBUG( "lcdscrollvert");
     //TODO: Vertical scroll
 }
 
@@ -1119,6 +1164,7 @@ void lcdscrollvert(LcdData_t *lcd, u8 direction)
  */
 u8 lcdprint(LcdData_t *lcd, const char *data)
 {
+    PDEBUG( "lcdprint");
     int i = 0;
 
     while (i < (lcd->organization.columns * lcd->organization.rows) && data[i])
@@ -1161,6 +1207,7 @@ u8 lcdprint(LcdData_t *lcd, const char *data)
  */
 void lcdcustomchar(LcdData_t *lcd, u8 num, const u8 *bitmap)
 {
+    PDEBUG( "lcdcustomchar");
     u8 i;
 
     num &= 0x07;
@@ -1182,6 +1229,7 @@ void lcdcustomchar(LcdData_t *lcd, u8 num, const u8 *bitmap)
  */
 void lcdfinalize(LcdData_t *lcd)
 {
+    PDEBUG( "lcdfinalize");
     lcdsetbacklight(lcd, 0);
     lcdclear(lcd);
     lcdclear(lcd);
@@ -1198,6 +1246,7 @@ void lcdfinalize(LcdData_t *lcd)
  */
 void lcdinit(LcdData_t *lcd, lcd_topology topo)
 {
+    PDEBUG( "lcdinit");
     memset(lcd->buffer, 0x20, LCD_BUFFER_SIZE); //Fill buffer with spaces
 
     if (topo > LCD_TOPO_8x2)
